@@ -1,0 +1,24 @@
+{
+    "name": "bg_parser",
+    "version": "1.0.0",
+    "description": "Statistical plugin for blockgeek",
+    "main": "parser.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node parser.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/yjjnls/bg_parser.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/yjjnls/bg_parser/issues"
+    },
+    "homepage": "https://github.com/yjjnls/bg_parser#readme",
+    "dependencies": {
+        "node-xlsx": "^0.12.1",
+        "puppeteer": "latest"
+    }
+}
