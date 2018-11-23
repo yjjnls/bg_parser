@@ -124,7 +124,7 @@ async function parse(username) {
     arr = content.split('\n');
     let answer = parse_reply(arr);
     // console.log(answer);
-    // console.log(topic.concat(answer));
+    console.log(topic.concat(answer));
     await browser.close();
     writeResult(username, topic.concat(answer));
     console.log(`===>parsing ${username} done!`);
