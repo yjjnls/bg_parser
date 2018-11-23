@@ -137,6 +137,7 @@ async function parse(username) {
 }
 
 var data = fs.readFileSync('./member.txt', 'utf8').split('\n');
+var config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 var nodemailer = require('nodemailer')
 
 var transport = nodemailer.createTransport({
@@ -145,14 +146,14 @@ var transport = nodemailer.createTransport({
     secureConnection: true,
     port: 465,
     auth: {
-        user: "yjjnls@163.com",
-        pass: "vurj3574"
+        user: config.src,
+        pass: process.env['PASS']
     }
 });
 
 var mailOptions = {
-    from: "yjjnls@163.com",
-    to: "807062913@qq.com",
+    from: config.src,
+    to: config.dst,
     subject: "Block geek parse result " + Date(),
     text: "Hello",
     html: "<b>Hello</b>",
@@ -161,6 +162,11 @@ var mailOptions = {
         path: "output.xlsx"
     }]
 };
+
+console.log("-~-~-~-~-~-~-~-~-~")
+console.log(process.env['PASS'])
+console.log("-~-~-~-~-~-~-~-~-~")
+
 
 (async () => {
     for (var i = 0; i < data.length; ++i) {
@@ -173,5 +179,3 @@ var mailOptions = {
         else console.log(res);
     });
 })();
-
-// console.log(process.env['FROM'])
