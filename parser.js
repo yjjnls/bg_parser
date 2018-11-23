@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 var fs = require('fs');
 var xlsx = require('node-xlsx');
+var nodemailer = require('nodemailer');
 
 let output = []
 function sleep(numberMillis) {
@@ -137,8 +138,6 @@ async function parse(username) {
 }
 
 var data = fs.readFileSync('./member.txt', 'utf8').split('\n');
-var config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
-var nodemailer = require('nodemailer')
 
 var transport = nodemailer.createTransport({
     service: 'smtp.163.com',
@@ -146,14 +145,14 @@ var transport = nodemailer.createTransport({
     secureConnection: true,
     port: 465,
     auth: {
-        user: config.src,
+        user: process.env['SRC_MAIL'],
         pass: process.env['PASS']
     }
 });
 
 var mailOptions = {
-    from: config.src,
-    to: config.dst,
+    from: process.env['SRC_MAIL'],
+    to: process.env['DST_MAIL'],
     subject: "Block geek parse result [" + Date() + "]",
     text: "Hello",
     html: "<b>Hello</b>",
@@ -162,11 +161,6 @@ var mailOptions = {
         path: "output.xlsx"
     }]
 };
-
-console.log("-~-~-~-~-~-~-~-~-~");
-console.log(process.env['PASS']);
-console.log("-~-~-~-~-~-~-~-~-~");
-
 
 (async () => {
     for (var i = 0; i < data.length; ++i) {
