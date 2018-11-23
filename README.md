@@ -1,6 +1,6 @@
 # bg_parser
-Statistical plugin for blockgeek
-
+Statistical plugin for blockgeek   
+![](https://ci.appveyor.com/api/projects/status/ty3nh0rb43349epc?svg=true)
 ## How to start
 1.  install [node.js](https://nodejs.org/dist/v10.13.0/node-v10.13.0-x64.msi)
 2.  `git clone https://github.com/yjjnls/bg_parser.git`

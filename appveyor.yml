@@ -12,6 +12,5 @@ environment:
           nodejs_arch: x64
 
 test_script:
-  - node --version
   - npm install
   - npm start

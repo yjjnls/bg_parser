@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 var fs = require('fs');
 var xlsx = require('node-xlsx');
 
+let output = []
 function sleep(numberMillis) {
     var now = new Date();
     var exitTime = now.getTime() + numberMillis;
@@ -95,13 +96,17 @@ function writeResult(name, data) {
         arr.push(val.type);
         list.push(arr);
     });
-    var buffer = xlsx.build([
-        {
-            name: name,
-            data: list
-        }
-    ]);
-    fs.writeFileSync('result/' + name + '.xlsx', buffer, { 'flag': 'w' });
+    // var buffer = xlsx.build([
+    //     {
+    //         name: name,
+    //         data: list
+    //     }
+    // ]);
+    // fs.writeFileSync('test.xlsx', buffer, { 'flag': 'w' });
+    output.push({
+        name: name,
+        data: list
+    });
 }
 async function parse(username) {
     console.log('===>parsing ' + username);
@@ -132,9 +137,41 @@ async function parse(username) {
 }
 
 var data = fs.readFileSync('./member.txt', 'utf8').split('\n');
+var nodemailer = require('nodemailer')
+
+var transport = nodemailer.createTransport({
+    service: 'smtp.163.com',
+    host: "smtp.163.com",
+    secureConnection: true,
+    port: 465,
+    auth: {
+        user: "yjjnls@163.com",
+        pass: process.env['PASS']
+    }
+});
+
+var mailOptions = {
+    from: "yjjnls@163.com",
+    to: "807062913@qq.com",
+    subject: "Block geek parse result " + Date(),
+    text: "Hello",
+    html: "<b>Hello</b>",
+    attachments: [{
+        file: "output.xlsx",
+        path: "output.xlsx"
+    }]
+};
 
 (async () => {
     for (var i = 0; i < data.length; ++i) {
         await parse(data[i]);
     }
+    var buffer = xlsx.build(output);
+    fs.writeFileSync('output.xlsx', buffer, { 'flag': 'w' });
+    transport.sendMail(mailOptions, (err, res) => {
+        if (err) console.log(err);
+        else console.log(res);
+    });
 })();
+
+// console.log(process.env['FROM'])

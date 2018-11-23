@@ -19,6 +19,7 @@
     "homepage": "https://github.com/yjjnls/bg_parser#readme",
     "dependencies": {
         "node-xlsx": "^0.12.1",
+        "nodemailer": "^4.7.0",
         "puppeteer": "latest"
     }
 }
