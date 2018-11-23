@@ -154,7 +154,7 @@ var transport = nodemailer.createTransport({
 var mailOptions = {
     from: config.src,
     to: config.dst,
-    subject: "Block geek parse result " + Date(),
+    subject: "Block geek parse result [" + Date() + "]",
     text: "Hello",
     html: "<b>Hello</b>",
     attachments: [{
@@ -163,9 +163,9 @@ var mailOptions = {
     }]
 };
 
-console.log("-~-~-~-~-~-~-~-~-~")
-console.log(process.env['PASS'])
-console.log("-~-~-~-~-~-~-~-~-~")
+console.log("-~-~-~-~-~-~-~-~-~");
+console.log(process.env['PASS']);
+console.log("-~-~-~-~-~-~-~-~-~");
 
 
 (async () => {
