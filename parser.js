@@ -146,7 +146,7 @@ var transport = nodemailer.createTransport({
     port: 465,
     auth: {
         user: "yjjnls@163.com",
-        pass: process.env['PASS']
+        pass: "vurj3574"
     }
 });
 
