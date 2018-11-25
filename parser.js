@@ -24,14 +24,15 @@ async function parse_topic(page, arr) {
             res = val.match('href="(.*)" class="title raw-link raw-topic-link">(.*)</a>');
             if (res) {
                 topic[index] = { 'url': 'http://blockgeek.org' + res[1], 'name': res[2] };
-            }
-            await page.goto(topic[index].url);
-            // await page.waitFor(1000);
-            let content = await page.$eval('#post_1 > div > div.topic-body.clearfix > div.regular.contents > div', el => el.innerText);
-            if (content.length >= 500) {
-                topic[index].type = 'article';
-            } else {
-                topic[index].type = 'question';
+                console.log({ 'url': 'http://blockgeek.org' + res[1], 'name': res[2] });
+                await page.goto(topic[index].url);
+                // await page.waitFor(1000);
+                let content = await page.$eval('#post_1 > div > div.topic-body.clearfix > div.regular.contents > div', el => el.innerText);
+                if (content.length >= 500) {
+                    topic[index].type = 'article';
+                } else {
+                    topic[index].type = 'question';
+                }
             }
         }
         if (val.indexOf("category-name") > 0) {
