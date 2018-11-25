@@ -24,7 +24,7 @@ async function parse_topic(page, arr) {
             res = val.match('href="(.*)" class="title raw-link raw-topic-link">(.*)</a>');
             if (res) {
                 topic[index] = { 'url': 'http://blockgeek.org' + res[1], 'name': res[2] };
-                // console.log({ 'url': 'http://blockgeek.org' + res[1], 'name': res[2] });
+                console.log({ 'url': 'http://blockgeek.org' + res[1], 'name': res[2] });
                 await page.goto(topic[index].url);
                 // await page.waitFor(1000);
                 let content = await page.$eval('#post_1 > div > div.topic-body.clearfix > div.regular.contents > div', el => el.innerText);
@@ -234,18 +234,17 @@ async function search_member() {
 
 }
 (async () => {
-    // await search_member();
-    // // for (var i = 0; i < data.length; ++i) {
-    // //     await parse(data[i]);
-    // // }
-    // for (var i = 0; i < member_info.length; ++i) {
-    //     await parse(member_info[i]);
+    await search_member();
+    // for (var i = 0; i < data.length; ++i) {
+    //     await parse(data[i]);
     // }
-    // var buffer = xlsx.build(output);
-    // fs.writeFileSync('output.xlsx', buffer, { 'flag': 'w' });
-    // transport.sendMail(mailOptions, (err, res) => {
-    //     if (err) console.log(err);
-    //     else console.log(res);
-    // });
-    await parse({'id':'Saturn','hpb':'0x000000'})
+    for (var i = 0; i < member_info.length; ++i) {
+        await parse(member_info[i]);
+    }
+    var buffer = xlsx.build(output);
+    fs.writeFileSync('output.xlsx', buffer, { 'flag': 'w' });
+    transport.sendMail(mailOptions, (err, res) => {
+        if (err) console.log(err);
+        else console.log(res);
+    });
 })();
