@@ -223,7 +223,7 @@ async function search_member() {
     await scroll(page, true);
     let content = await page.$eval('#ember854 > table > tbody', el => el.innerHTML);
     let arr = content.split('\n');
-    parse_member(page, arr);
+    await parse_member(page, arr);
 
 }
 (async () => {
