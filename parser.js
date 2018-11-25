@@ -216,8 +216,8 @@ async function parse_member(page, arr) {
 }
 async function search_member() {
 
-    // const browser = await puppeteer.launch();
-    const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
+    const browser = await puppeteer.launch();
+    // const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
     const page = await browser.newPage();
     await page.goto(`http://blockgeek.org/u`);
     // await page.waitFor(1000);
@@ -225,6 +225,7 @@ async function search_member() {
     let content = await page.$eval('#ember854 > table > tbody', el => el.innerHTML);
     let arr = content.split('\n');
     await parse_member(page, arr);
+    await browser.close();
 
 }
 (async () => {
