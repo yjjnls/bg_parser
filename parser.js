@@ -33,6 +33,9 @@ async function parse_topic(page, arr) {
                 } else {
                     topic[index].type = 'question';
                 }
+            } else {
+                topic[index] = '';
+                break;
             }
         }
         if (val.indexOf("category-name") > 0) {
@@ -106,13 +109,15 @@ async function scroll(page, total = false) {
 function writeResult(member, data) {
     let list = [['id', member.id], ['hpb address', member.hpb], ['topic', 'url', 'time', 'category', 'type']];
     data.forEach(val => {
-        let arr = [];
-        arr.push(val.name);
-        arr.push(val.url);
-        arr.push(val.time);
-        arr.push(val.category);
-        arr.push(val.type);
-        list.push(arr);
+        if (val != '') {
+            let arr = [];
+            arr.push(val.name);
+            arr.push(val.url);
+            arr.push(val.time);
+            arr.push(val.category);
+            arr.push(val.type);
+            list.push(arr);
+        }
     });
     // var buffer = xlsx.build([
     //     {
