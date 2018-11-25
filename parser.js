@@ -240,7 +240,7 @@ async function search_member() {
     //     await parse(data[i]);
     // }
     for (var i = 0; i < member_info.length; ++i) {
-        console.log('===>parsing ' + i + '/' + member_info.length + ' ' + member_info.id);
+        console.log('===>parsing ' + i + '/' + member_info.length + ' ' + member_info[i].id);
         await parse(member_info[i]);
     }
     var buffer = xlsx.build(output);
