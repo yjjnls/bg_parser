@@ -134,8 +134,8 @@ function writeResult(member, data) {
 async function parse(member) {
     console.log('===>parsing ' + member.id);
     let id = member.id;
-    // const browser = await puppeteer.launch();
-    const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
+    const browser = await puppeteer.launch();
+    // const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
     const page = await browser.newPage();
     await page.goto(`http://blockgeek.org/u/${id}/activity/topics`);
     // await page.waitFor(1000);
