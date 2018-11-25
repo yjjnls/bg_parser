@@ -19,12 +19,12 @@ async function parse_topic(page, arr) {
     index = -1;
     for (var i = 0; i < arr.length; ++i) {
         let val = arr[i];
-        if (val.indexOf("link-top-line") > 0) {
+        if (val.indexOf("title raw-link raw-topic-link") > 0) {
             index++;
             res = val.match('href="(.*)" class="title raw-link raw-topic-link">(.*)</a>');
             if (res) {
                 topic[index] = { 'url': 'http://blockgeek.org' + res[1], 'name': res[2] };
-                console.log({ 'url': 'http://blockgeek.org' + res[1], 'name': res[2] });
+                // console.log({ 'url': 'http://blockgeek.org' + res[1], 'name': res[2] });
                 await page.goto(topic[index].url);
                 // await page.waitFor(1000);
                 let content = await page.$eval('#post_1 > div > div.topic-body.clearfix > div.regular.contents > div', el => el.innerText);
@@ -133,9 +133,9 @@ function writeResult(member, data) {
 }
 async function parse(member) {
     console.log('===>parsing ' + member.id);
-    let id = member.id.toLowerCase();
-    const browser = await puppeteer.launch();
-    // const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
+    let id = member.id;
+    // const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
     const page = await browser.newPage();
     await page.goto(`http://blockgeek.org/u/${id}/activity/topics`);
     // await page.waitFor(1000);
@@ -234,17 +234,18 @@ async function search_member() {
 
 }
 (async () => {
-    await search_member();
-    // for (var i = 0; i < data.length; ++i) {
-    //     await parse(data[i]);
+    // await search_member();
+    // // for (var i = 0; i < data.length; ++i) {
+    // //     await parse(data[i]);
+    // // }
+    // for (var i = 0; i < member_info.length; ++i) {
+    //     await parse(member_info[i]);
     // }
-    for (var i = 0; i < member_info.length; ++i) {
-        await parse(member_info[i]);
-    }
-    var buffer = xlsx.build(output);
-    fs.writeFileSync('output.xlsx', buffer, { 'flag': 'w' });
-    transport.sendMail(mailOptions, (err, res) => {
-        if (err) console.log(err);
-        else console.log(res);
-    });
+    // var buffer = xlsx.build(output);
+    // fs.writeFileSync('output.xlsx', buffer, { 'flag': 'w' });
+    // transport.sendMail(mailOptions, (err, res) => {
+    //     if (err) console.log(err);
+    //     else console.log(res);
+    // });
+    await parse({'id':'Saturn','hpb':'0x000000'})
 })();
