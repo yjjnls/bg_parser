@@ -225,7 +225,7 @@ async function search_member() {
     const browser = await puppeteer.launch();
     // const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
     const page = await browser.newPage();
-    await page.goto(`http://blockgeek.org/u`);
+    await page.goto(`http://blockgeek.org/u?period=all`);
     // await page.waitFor(1000);
     await scroll(page, true);
     let content = await page.$eval('#ember854 > table > tbody', el => el.innerHTML);
