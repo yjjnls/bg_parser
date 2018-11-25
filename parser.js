@@ -126,13 +126,14 @@ function writeResult(member, data) {
     //     }
     // ]);
     // fs.writeFileSync('test.xlsx', buffer, { 'flag': 'w' });
+    console.log('====> add sheet: ' + member.id);
     output.push({
         name: member.id,
         data: list
     });
 }
 async function parse(member) {
-    console.log('===>parsing ' + member.id);
+
     let id = member.id;
     const browser = await puppeteer.launch();
     // const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
@@ -239,6 +240,7 @@ async function search_member() {
     //     await parse(data[i]);
     // }
     for (var i = 0; i < member_info.length; ++i) {
+        console.log('===>parsing ' + i + '/' + member_info.length + ' ' + member.id);
         await parse(member_info[i]);
     }
     var buffer = xlsx.build(output);
