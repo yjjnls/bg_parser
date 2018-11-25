@@ -13,6 +13,7 @@ function sleep(numberMillis) {
             return;
     }
 }
+
 async function parse_topic(page, arr) {
     topic = [];
     index = -1;
@@ -79,15 +80,30 @@ function parse_reply(arr) {
     return topic;
 }
 
-async function scroll(page, scrollDelay = 1000) {
-    for (var i = 0; i < 5; ++i) {
-        previousHeight = await page.evaluate('document.body.scrollHeight');
-        await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
-        await page.waitFor(500);
+async function scroll(page, total = false) {
+    if (total) {
+        while (true) {
+            let previousHeight = await page.evaluate('document.body.scrollHeight');
+            await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
+            try {
+                await page.waitForFunction(`document.body.scrollHeight > ${previousHeight}`);
+                await page.waitFor(500);
+            } catch (err) {
+                break;
+            }
+        }
+    }
+    else {
+        for (var i = 0; i < 5; ++i) {
+            let previousHeight = await page.evaluate('document.body.scrollHeight');
+            await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
+            await page.waitFor(500);
+        }
     }
 }
-function writeResult(name, data) {
-    let list = [['topic', 'url', 'time', 'category', 'type']];
+
+function writeResult(member, data) {
+    let list = [['id', member.id], ['hpb address', member.hpb], ['topic', 'url', 'time', 'category', 'type']];
     data.forEach(val => {
         let arr = [];
         arr.push(val.name);
@@ -105,13 +121,13 @@ function writeResult(name, data) {
     // ]);
     // fs.writeFileSync('test.xlsx', buffer, { 'flag': 'w' });
     output.push({
-        name: name,
+        name: member.id,
         data: list
     });
 }
-async function parse(username) {
-    console.log('===>parsing ' + username);
-    id = username.toLowerCase();
+async function parse(member) {
+    console.log('===>parsing ' + member.id);
+    let id = member.id.toLowerCase();
     const browser = await puppeteer.launch();
     // const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
     const page = await browser.newPage();
@@ -132,12 +148,12 @@ async function parse(username) {
     // console.log(answer);
     console.log(topic.concat(answer));
     await browser.close();
-    writeResult(username, topic.concat(answer));
-    console.log(`===>parsing ${username} done!`);
+    writeResult(member, topic.concat(answer));
+    console.log(`===>parsing ${member.id} done!`);
 
 }
 
-var data = fs.readFileSync('./member.txt', 'utf8').split('\n');
+// var data = fs.readFileSync('./member.txt', 'utf8').split('\n');
 
 var transport = nodemailer.createTransport({
     service: 'smtp.163.com',
@@ -161,10 +177,62 @@ var mailOptions = {
         path: "output.xlsx"
     }]
 };
+let member_info = [];
+async function parse_member(page, arr) {
+    let member_list = [];
+    for (var i = 0; i < arr.length; ++i) {
+        let val = arr[i];
+        if (val.indexOf("data-user-card") > 0) {
+            let res = val.match('<a href="/u/(.*)" data-user-card="(.*)">(.*)</a>');
+            if (res) {
+                if (res[1] == res[3])
+                    member_list.push(res[1]);
+            }
+        }
+    }
+    for (var i = 0; i < member_list.length; ++i) {
+        let member_id = member_list[i];
+        member_info[i] = { 'id': member_id, 'hpb': '' };
+        await page.goto('http://blockgeek.org/u/' + member_id);
 
+        let content = await page.$eval('#main-outlet > div:nth-child(2)', el => el.innerHTML);
+        content = content.split('\n');
+        for (var j = 0; j < content.length; ++j) {
+            if (content[j].indexOf('<span class="user-field-value">') > 0) {
+                let emberid = content[j].match('<span class="user-field-value">(.*)</span>');
+                if (emberid) {
+                    member_info[i].hpb = emberid[1];
+                    break;
+                }
+            }
+        }
+        console.log('id: ' + member_info[i].id + '\nhpb: ' + member_info[i].hpb + '\n');
+
+
+    }
+    console.log(member_info)
+    console.log(member_info.length)
+}
+async function search_member() {
+
+    // const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
+    const page = await browser.newPage();
+    await page.goto(`http://blockgeek.org/u`);
+    // await page.waitFor(1000);
+    await scroll(page, true);
+    let content = await page.$eval('#ember854 > table > tbody', el => el.innerHTML);
+    let arr = content.split('\n');
+    parse_member(page, arr);
+
+}
 (async () => {
-    for (var i = 0; i < data.length; ++i) {
-        await parse(data[i]);
+    await search_member();
+    // for (var i = 0; i < data.length; ++i) {
+    //     await parse(data[i]);
+    // }
+    for (var i = 0; i < member_info.length; ++i) {
+        await parse(member_info[i]);
     }
     var buffer = xlsx.build(output);
     fs.writeFileSync('output.xlsx', buffer, { 'flag': 'w' });
