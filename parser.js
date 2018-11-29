@@ -3,7 +3,7 @@ var fs = require('fs');
 var xlsx = require('node-xlsx');
 var nodemailer = require('nodemailer');
 
-let output = []
+let output = [];
 function sleep(numberMillis) {
     var now = new Date();
     var exitTime = now.getTime() + numberMillis;
@@ -25,13 +25,19 @@ async function parse_topic(page, arr) {
             if (res) {
                 topic[index] = { 'url': 'http://blockgeek.org' + res[1], 'name': res[2] };
                 console.log({ 'url': 'http://blockgeek.org' + res[1], 'name': res[2] });
-                await page.goto(topic[index].url);
-                // await page.waitFor(1000);
-                let content = await page.$eval('#post_1 > div > div.topic-body.clearfix > div.regular.contents > div', el => el.innerText);
-                if (content.length >= 500) {
-                    topic[index].type = 'article';
-                } else {
-                    topic[index].type = 'question';
+                topic[index].type = 'unknown';
+                try {
+                    await page.goto(topic[index].url);
+                    // await page.waitFor(1000);
+                    let content = await page.$eval('#post_1 > div > div.topic-body.clearfix > div.regular.contents > div', el => el.innerText);
+                    if (content.length >= 500) {
+                        topic[index].type = 'article';
+                    } else {
+                        topic[index].type = 'question';
+                    }
+                } catch (err) {
+                    console.log(`====> Error: can't go to ${topic[index].url}`);
+                    console.log(err);
                 }
             } else {
                 topic[index] = '';
@@ -96,8 +102,7 @@ async function scroll(page, total = false) {
                 break;
             }
         }
-    }
-    else {
+    } else {
         for (var i = 0; i < 5; ++i) {
             let previousHeight = await page.evaluate('document.body.scrollHeight');
             await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
@@ -168,14 +173,14 @@ var transport = nodemailer.createTransport({
     secureConnection: true,
     port: 465,
     auth: {
-        user: process.env['SRC_MAIL'],
-        pass: process.env['PASS']
+        user: process.env.SRC_MAIL,
+        pass: process.env.PASS
     }
 });
 
 var mailOptions = {
-    from: process.env['SRC_MAIL'],
-    to: process.env['DST_MAIL'],
+    from: process.env.SRC_MAIL,
+    to: process.env.DST_MAIL,
     subject: "Block geek parse result [" + Date() + "]",
     text: "Hello",
     html: "<b>Hello</b>",
@@ -217,8 +222,8 @@ async function parse_member(page, arr) {
 
 
     }
-    console.log(member_info)
-    console.log(member_info.length)
+    console.log(member_info);
+    console.log(member_info.length);
 }
 async function search_member() {
 
