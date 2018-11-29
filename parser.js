@@ -138,30 +138,37 @@ function writeResult(member, data) {
     });
 }
 async function parse(member) {
-
     let id = member.id;
     const browser = await puppeteer.launch();
-    // const browser = await puppeteer.launch({ headless: false, slowMo: 250 });
+    // const browser = await puppeteer.launch({ he adless: false, slowMo: 250 });
     const page = await browser.newPage();
-    await page.goto(`http://blockgeek.org/u/${id}/activity/topics`);
-    // await page.waitFor(1000);
-    await scroll(page);
-    let content = await page.$eval('#main-outlet > div:nth-child(2)', el => el.innerHTML);
-    let arr = content.split('\n');
+    let topic, answer;
+    try {
+        await page.goto(`http://blockgeek.org/u/${id}/activity/topics`);
 
-    let topic = await parse_topic(page, arr);
+        // await page.waitFor(1000);
+        await scroll(page);
+        let content = await page.$eval('#main-outlet > div:nth-child(2)', el => el.innerHTML);
+        let arr = content.split('\n');
 
-    await page.goto(`http://blockgeek.org/u/${id}/activity/replies`);
-    await page.waitFor(1000);
-    await scroll(page);
-    content = await page.$eval('#main-outlet > div:nth-child(2)', el => el.innerHTML);
-    arr = content.split('\n');
-    let answer = parse_reply(arr);
+        topic = await parse_topic(page, arr);
+
+        await page.goto(`http://blockgeek.org/u/${id}/activity/replies`);
+        await page.waitFor(1000);
+        await scroll(page);
+        content = await page.$eval('#main-outlet > div:nth-child(2)', el => el.innerHTML);
+        arr = content.split('\n');
+        answer = parse_reply(arr);
+    } catch (err) {
+        console.log(`===>parsing ${id} error!`);
+        await browser.close();
+        return;
+    }
     // console.log(answer);
     console.log(topic.concat(answer));
     await browser.close();
     writeResult(member, topic.concat(answer));
-    console.log(`===>parsing ${member.id} done!`);
+    console.log(`===>parsing ${id} done!`);
 
 }
 
@@ -189,7 +196,7 @@ var mailOptions = {
         path: "output.xlsx"
     }]
 };
-let member_info = [];
+let member_info = {};
 async function parse_member(page, arr) {
     let member_list = [];
     for (var i = 0; i < arr.length; ++i) {
@@ -204,7 +211,7 @@ async function parse_member(page, arr) {
     }
     for (var i = 0; i < member_list.length; ++i) {
         let member_id = member_list[i];
-        member_info[i] = { 'id': member_id, 'hpb': '' };
+        member_info[member_id] = 'unknown';
         await page.goto('http://blockgeek.org/u/' + member_id);
 
         let content = await page.$eval('#main-outlet > div:nth-child(2)', el => el.innerHTML);
@@ -213,17 +220,17 @@ async function parse_member(page, arr) {
             if (content[j].indexOf('<span class="user-field-value">') > 0) {
                 let emberid = content[j].match('<span class="user-field-value">(.*)</span>');
                 if (emberid) {
-                    member_info[i].hpb = emberid[1];
+                    member_info[member_id] = emberid[1];
                     break;
                 }
             }
         }
-        console.log('id: ' + member_info[i].id + '\nhpb: ' + member_info[i].hpb + '\n');
+        console.log('id: ' + member_id + '\nhpb: ' + member_info[member_id] + '\n');
 
 
     }
     console.log(member_info);
-    console.log(member_info.length);
+    console.log(Object.getOwnPropertyNames(member_info).length);
 }
 async function search_member() {
 
@@ -244,9 +251,12 @@ async function search_member() {
     // for (var i = 0; i < data.length; ++i) {
     //     await parse(data[i]);
     // }
-    for (var i = 0; i < member_info.length; ++i) {
-        console.log('===>parsing ' + i + '/' + member_info.length + ' ' + member_info[i].id);
-        await parse(member_info[i]);
+    var i = 0;
+    var total = Object.getOwnPropertyNames(member_info).length;
+    for (var id in member_info) {
+        i += 1;
+        console.log('===>parsing ' + i + '/' + total + ' ' + id);
+        await parse({ 'id': id, 'hpb': member_info[id] });
     }
     var buffer = xlsx.build(output);
     fs.writeFileSync('output.xlsx', buffer, { 'flag': 'w' });
